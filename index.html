@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<!-- saved from url=(0106)file:///C:/Users/%E5%88%98%E5%9D%9A/Desktop/%E6%96%87%E6%9C%AC%E9%82%AE%E7%AE%B1%E6%8F%90%E5%8F%965.5.html -->
-<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="zh-CN">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文本邮箱提取</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f9;
+            background-image: url('./img/backgroundsy.png'); /* 替换为你的图片路径 */
+            background-repeat: repeat; /* 图片重复铺满背景 */
+            background-size: 241px 238px; /* 设置图片大小 */
+            background-attachment: fixed; /* 使背景图片固定在窗口，不随内容滚动 */
+            background-position: top left; /* 可选，设置背景图片的对齐方式 */
+            background-color: #f4f4f9; /* 为避免图片加载时的闪烁效果，设置一个背景色 */
             padding: 20px;
             margin: 0;
             color: #333;
             transition: background-color 0.3s, color 0.3s;
-        }
-
-        body.dark-mode {
-            background-color: #121212;
-            color: #e0e0e0;
         }
 
         h2 {
@@ -57,11 +57,6 @@
             transition: background-color 0.3s, border-color 0.3s;
         }
 
-        body.dark-mode .container {
-            background-color: #1e1e1e;
-            border-color: #333;
-        }
-
         form,
         #result {
             width: 100%;
@@ -86,16 +81,6 @@
             outline: none;
             background-color: #fff;
             color: #333;
-        }
-
-        body.dark-mode input[type="text"],
-        body.dark-mode input[type="submit"],
-        body.dark-mode input[type="button"],
-        body.dark-mode button,
-        body.dark-mode .dropdown {
-            background-color: #333;
-            color: #e0e0e0;
-            border-color: #555;
         }
 
         input[type="text"] {
@@ -152,12 +137,6 @@
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
             transition: background-color 0.3s, border-color 0.3s;
             color: #333;
-        }
-
-        body.dark-mode #emails {
-            background-color: #333;
-            color: #e0e0e0;
-            border-color: #555;
         }
 
         #emailPrompt {
@@ -286,22 +265,6 @@
             background-color: #f4f4f9;
         }
 
-        body.dark-mode .dropdown {
-            background-color: #333;
-            color: #e0e0e0;
-            border-color: #555;
-        }
-
-        body.dark-mode .dropdown-content {
-            background-color: #333;
-            color: #e0e0e0;
-            border-color: #555;
-        }
-
-        body.dark-mode .dropdown-content label:hover {
-            background-color: #444;
-        }
-
         #selectAllLabel {
             font-weight: bold;
         }
@@ -316,18 +279,18 @@
         <h2>文本邮箱提取工具</h2>
     </div>
     <div class="container">
-        <form onsubmit="return extractEmails()">
+               <form onsubmit="return extractEmails()">
             <input type="text" id="inputText" placeholder="输入包含邮箱的文本" onclick="clearText(this)">
             <div class="dropdown" onmouseover="toggleDomainSelection(true)" onmouseout="toggleDomainSelection(false)">
                 <div id="domainSelection">选择指定邮箱后缀</div>
-                <div class="dropdown-content" id="domainSelectionContainer" style="display: none;"><label id="selectAllLabel"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" checked=""> 全选</label></div>
+                <div class="dropdown-content" id="domainSelectionContainer" style="display: none;"><label id="selectAllLabel"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" checked> 全选</label></div>
             </div>
             <input type="submit" value="提取邮箱">
         </form>
 
         <button type="button" value="全部复制" onclick="copyEmails()">全部复制</button>
         <button type="button" value="清空" onclick="clearEmails()">清空</button>
-        <button class="toggle-dark-mode" onclick="toggleDarkMode()">切换明/暗模式</button>
+	
 
         <div id="emailPrompt">提取到的邮箱地址：</div>
         <pre id="emails"></pre>
@@ -349,14 +312,14 @@
         function autoDetectDomains() {
             const text = document.getElementById('inputText').value;
             const emails = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g);
-            const allDomains = emails ? [...new Set(emails.map(email => email.split('@')[1]))] : [];
+            const allDomains = emails ? [...new Set(emails.map(email => email.split('@')[1].toLowerCase()))] : [];
 
             const container = document.getElementById('domainSelectionContainer');
             container.innerHTML = '<label id="selectAllLabel"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" checked> 全选</label>';
 
             allDomains.forEach(domain => {
                 const label = document.createElement('label');
-                label.innerHTML = `<input type="checkbox" class="domain-checkbox" value="@${domain}" checked> @${domain}`;
+                label.innerHTML = `<input type="checkbox" class="domain-checkbox" value="@${domain}" checked onclick="checkSelectAll()"> @${domain}`;
                 container.appendChild(label);
             });
 
@@ -374,6 +337,13 @@
             });
         }
 
+        function checkSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.domain-checkbox');
+            const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+            selectAllCheckbox.checked = allChecked;
+        }
+
         function toggleDomainSelection(show) {
             const dropdownContent = document.getElementById('domainSelectionContainer');
             if (!dropdownContent.contains(event.relatedTarget)) {
@@ -382,7 +352,7 @@
         }
 
         function extractEmails() {
-            const text = document.getElementById("inputText").value;
+            const text = document.getElementById("inputText").value.toLowerCase();
             const selectedDomains = Array.from(document.querySelectorAll('.domain-checkbox:checked')).map(cb => cb.value);
             const emails = text.match(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g);
 
@@ -393,7 +363,7 @@
                 const resultText = uniqueEmails.join('\n');
                 document.getElementById("emails").textContent = resultText;
                 document.getElementById("emailCount").innerHTML = `邮箱数量: <span class="count-number">${uniqueEmails.length}</span>`;
-                const uniqueDomains = new Set(uniqueEmails.map(email => email.split('@')[1]));
+                const uniqueDomains = new Set(uniqueEmails.map(email => email.split('@')[1].toLowerCase()));
                 document.getElementById("domainCount").innerHTML = `后缀数量: <span class="count-number">${uniqueDomains.size}</span>`;
                 updateSavedEmailsTextarea();
             } else {
@@ -405,7 +375,7 @@
         function clearText(input) {
             input.value = "";
             document.getElementById('domainSelectionContainer').innerHTML = '<label id="selectAllLabel"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" checked> 全选</label>';
-	document.getElementById("domainSelection").textContent = "选择指定邮箱后缀";
+            document.getElementById("domainSelection").textContent = "选择指定邮箱后缀";
         }
 
         function copyEmails() {
@@ -454,10 +424,6 @@
             }, 1000);
         }
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-        }
-
         function updateSavedEmailsTextarea() {
             document.getElementById("savedEmails").value = Array.from(savedEmails).join("\n");
         }
@@ -466,9 +432,22 @@
             const emailsText = Array.from(savedEmails).join("\n");
             const blob = new Blob([emailsText], { type: "text/plain" });
             const url = window.URL.createObjectURL(blob);
+
+            // 获取当前日期和时间
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+
+            // 格式化日期和时间
+            const dateTime = `${year}-${month}-${day}(${hours}.${minutes})`;
+            const fileName = `亚伦邮箱${dateTime}.txt`;
+
             const a = document.createElement("a");
             a.href = url;
-            a.download = "亚伦邮箱.txt";
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
@@ -478,9 +457,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('domainSelectionContainer').style.display = 'none';
         });
-    </script>
 
-
-
-
-</body></html>
+	    </script>
+</body>
+</html>
